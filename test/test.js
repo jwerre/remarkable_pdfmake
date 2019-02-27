@@ -1,4 +1,7 @@
 const assert = require('assert');
+const fs = require('fs');
+const {spawn} = require('child_process');
+const PdfPrinter = require('pdfmake');
 const Remarkable = require('remarkable');
 const plugin = require('../');
 
@@ -22,7 +25,8 @@ describe( 'Remarkable PDFMake Plugin', function () {
 					{ italics: true, text: 'italicized' },
 					{ text: ' text' } 
 				] 
-			}
+			},
+			'\n'
 		]);
 		
 	});
@@ -40,7 +44,8 @@ describe( 'Remarkable PDFMake Plugin', function () {
 					{ bold: true, text: 'bold' },
 					{ text: ' text' }
 				]
-			}
+			},
+			'\n'
 		]);
 		
 	});
@@ -55,7 +60,8 @@ describe( 'Remarkable PDFMake Plugin', function () {
 					{ text: 'Here\'s a ' },
 					{ link: 'http://google.com', text: 'link to Google!' } 
 				]
-			}
+			},
+			'\n'
 		]);
 		
 	});
@@ -69,7 +75,8 @@ describe( 'Remarkable PDFMake Plugin', function () {
 					{ text: 'Here\'s an image: ' },
 				]
 			},
-			{ image: 'http://https://octodex.github.com/images/original.png' } 
+			{ image: 'http://https://octodex.github.com/images/original.png' },
+			'\n' 
 		]);
 		
 	});
@@ -90,6 +97,7 @@ describe( 'Remarkable PDFMake Plugin', function () {
 					{ text: ' as well.' },
 				]
 			},
+			'\n'
 		]);
 		
 	});
@@ -104,76 +112,103 @@ describe( 'Remarkable PDFMake Plugin', function () {
 					{ text: 'Here\'s a data uri ' }
 				]
 			},
-			{ image: DATA_URI } 
+			{ image: DATA_URI },
+			'\n'
 		]);
 		
 	});
 
-
-	it('should parse some complex markdown', function () {
-
-		const md = [
-				'*em*',
-				'this is *Italicized* text',
-				'_**italibold**_',
-				'**bold** some *italic* with _**italibold**_ Markdown',
-				'make words **bold** and others *italic*, you can even use _**italibold**_. Here\'s a [link to Google!](http://google.com)',
+	// This will open the PDF assuming you have Preview.app (OSX)
+	it.skip('should parse some complex markdown, create and open a pdf.', async function () {
+		
+		let promise, parsed, writeStream, pdfDoc;
+		
+		const printer = new PdfPrinter({
+				Helvetica: {
+					normal: 'Helvetica',
+					bold: 'Helvetica-Bold',
+					italics: 'Helvetica-Oblique',
+					bolditalics: 'Helvetica-BoldOblique'
+				}
+			}),
+			file = '/tmp/markdown.pdf',
+			md = [
+				'Here we have some Markdown that is **bold** and some *italic* or even _**italibold**_.',
+				'Here\'s a [link to Google!](http://google.com)',
 				'',
-				'If you want to embed images, this is how you do it: ![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)',
-				'',
+				`You can embed relative images or data URIs: ![Alt text is ignored](${DATA_URI})`,
 				'',
 				'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.',
 			],
 			result = [
 				{ 
 					text: [
-						{ italics: true, text: 'em' },
-						{ text: '\n' },
-						{ text: 'this is ' },
-						{ italics: true, text: 'Italicized' },
-						{ text: ' text' },
-						{ text: '\n' },
-						{ italics: true, bold: true, text: 'italibold' },
-						{ text: '\n' },
+						{ text: 'Here we have some Markdown that is ' },
 						{ bold: true, text: 'bold' },
-						{ text: ' some ' },
+						{ text: ' and some ' },
 						{ italics: true, text: 'italic' },
-						{ text: ' with ' },
+						{ text: ' or even ' },
 						{ italics: true, bold: true, text: 'italibold' },
-						{ text: ' Markdown' },
+						{ text: '.' },
 						{ text: '\n' },
-						{ text: 'make words ' },
-						{ bold: true, text: 'bold' },
-						{ text: ' and others ' },
-						{ italics: true, text: 'italic' },
-						{ text: ', you can even use ' },
-						{ italics: true, bold: true, text: 'italibold' },
-						{ text: '. Here\'s a ' },
+						{ text: 'Here\'s a ' },
 						{ link: 'http://google.com', text: 'link to Google!' }
 					]
 				},
+				'\n',
 				{
 					text: [
 						{
-							text: 'If you want to embed images, this is how you do it: '
+							text: 'You can embed relative images or data URIs: '
 						}
 					]
 				},
 				{
-					image: 'https://octodex.github.com/images/yaktocat.png'
+					image: DATA_URI
 				},
+				'\n',
 				{
 					text: [
 						{
 							text: 'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.'
 						}
 					] 
-				}
+				},
+				'\n'
 			];
-
-		let parsed = remarkable.render(md.join('\n'));
-		// console.log( require('util').inspect(parsed, {depth:5, colors:true}) );
+		parsed = remarkable.render(md.join('\n'));
 		assert.deepStrictEqual(parsed, result);
+		
+		// This will open the pdf assuming you have Preview.app
+		writeStream = fs.createWriteStream(file);
+		pdfDoc = printer.createPdfKitDocument({
+			content: parsed,
+			defaultStyle: {
+				font: 'Helvetica'
+			}
+		});
+		
+		
+		promise = new Promise(function(resolve, reject){
+		
+			writeStream.on('error', reject);
+		
+			writeStream.on('finish', function () {
+		
+				const open = spawn('open', ['-a', '/Applications/Preview.app', file]);
+		
+				open.stderr.on('data', reject);
+				open.on('exit', resolve);
+		
+			});
+		
+		});
+		
+		pdfDoc.pipe(writeStream);
+		pdfDoc.end();
+		
+		return promise;
+
 	});
 	
 	describe.skip('TODO:', function () {

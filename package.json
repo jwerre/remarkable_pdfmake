@@ -3,32 +3,40 @@
   "version": "0.0.0-1",
   "description": "Convert markdown text to [PDFMake](https://github.com/bpampuch/pdfmake) arguments.",
   "main": "index.js",
-  "repository": "git@github.com:jwerre/remarkable-pdfmake.git",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jwerre/remarkable_pdfmake.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jwerre/remarkable_pdfmake/issues"
+  },
+  "homepage": "https://github.com/jwerre/remarkable_pdfmake",
   "author": "Jonah Werre <jonahwerre@gmail.com>",
   "license": "MIT",
   "scripts": {
-	"test": "mocha test"
+    "test": "mocha test"
   },
   "keywords": [
-      "document",
-      "glossary",
-      "link",
-      "datauri",
-      "bold",
-      "strong",
-      "italic",
-      "italicized",
-      "image",
-      "markdown",
-      "md",
-      "plugin",
-      "remarkable",
-      "remarkableplugin",
-      "parcer",
-      "render"
+    "document",
+    "glossary",
+    "link",
+    "datauri",
+    "bold",
+    "strong",
+    "italic",
+    "italicized",
+    "image",
+    "markdown",
+    "md",
+    "plugin",
+    "remarkable",
+    "remarkableplugin",
+    "parcer",
+    "render"
   ],
   "dependencies": {},
   "devDependencies": {
+    "pdfmake": "^0.1.53",
     "remarkable": "^1.7.1"
   }
 }

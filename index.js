@@ -48,6 +48,7 @@ const disabled = {
 		'entity',
 	]
 };
+
 const INLINE_GROUP_DELIMS = [
 	'text',
 	'image',
@@ -114,18 +115,18 @@ function _parseInlineGroup (group) {
 */
 function Plugin(md) {
 	
-	// console.log( require('util').inspect(md, {depth:5, colors:true}) );
-	
 	md.core.ruler.disable(disabled.core);
 	md.block.ruler.disable(disabled.block);
 	md.inline.ruler.disable(disabled.inline);
 	md.renderer.rules = renderRules; // this should be empty
 
 	// replace block rules
+	// TODO:
 	// md.block.ruler.at( 'list', require('./lib/parser_rules/block/list') );
 	// md.block.ruler.at( 'table', require('./lib/parser_rules/block/table') );
 	
 	// replace inline rules
+	// need to modify image parser since data uris are not supported.
 	md.inline.ruler.at( 'links', require('./lib/parser_rules/inline/links') );
 
 	
@@ -146,8 +147,6 @@ function Plugin(md) {
 				group = [];
 			}
 		}
-		
-		// console.log( require('util').inspect(groups, {depth:5, colors:true}) );
 		
 		// this doesn't work since you can't put images inside text blocks
 		// var stacks = {
@@ -179,8 +178,6 @@ function Plugin(md) {
 			stacks.push(textStack);
 		}
 		
-		// console.log( require('util').inspect(stacks, {depth:5, colors:true}) );
-		
 		return stacks;
 	};
 
@@ -194,6 +191,8 @@ function Plugin(md) {
 			if (token.type === 'inline') {
 				result = result.concat( this.renderInline(token.children, options, env) );
 			} else {
+				// console.log('\n———');
+				// console.log( require('util').inspect(token, {depth:5, colors:true}) );
 				if (typeof this.rules[token.type] === 'function') {
 					result.push( this.rules[token.type](tokens, i, options, env, this) );
 				}

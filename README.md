@@ -1,6 +1,6 @@
 # Remarkable PDFMake Plugin
 
-Convert markdown text to [PDFMake](https://github.com/bpampuch/pdfmake) arguments.
+A [Remarkable](https://github.com/jonschlinkert/remarkable) plugin that converts Markdown to [PDFMake](https://github.com/bpampuch/pdfmake) arguments.
 
 ## Install
 
@@ -12,28 +12,43 @@ $ npm install --save remarkable_pdfmake
 
 ```js
 
-const fs = require('fs');
-const PdfPrinter = require('pdfmake');
-const Remarkable = require('remarkable');
-const remarkablePdfMake = require('remarkable_pdfmake');
-
-const remarkable = new Remarkable();
-remarkable.use(remarkablePdfMake);
-
-const md = [
-		'Make words **bold** and others *italic*, you can even use _**both**_. Here\'s a [link to Google!](http://google.com)',
+const fs = require('fs'),
+	PdfPrinter = require('pdfmake'),
+	Remarkable = require('remarkable'),
+	remarkablePdfMake = require('remarkable_pdfmake');
+	remarkable = new Remarkable(),
+	printer = new PdfPrinter({
+		Helvetica: {
+			normal: 'Helvetica',
+			bold: 'Helvetica-Bold',
+			italics: 'Helvetica-Oblique',
+			bolditalics: 'Helvetica-BoldOblique'
+		}
+	}),
+	file = '/tmp/markdown.pdf'
+	md = [
+		'Here we have some Markdown that is **bold** and some *italic* or even _**italibold**_.',
+		'Here\'s a [link to Google!](http://google.com)',
 		'',
-		'If you want to embed images, this is how you do it: ![Image of Yaktocat](data:image/png;base64,...)',
-		'',
-		'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.',
-	];
-	
-const docDefs = remarkable.render(md.join('\n'));
-const printer = new PdfPrinter();
+		`You can embed relative images or data URIs: ![Alt text is ignored](${DATA_URI})`,
+	],
 
-let ws = fs.createWriteStream('markdown.pdf');
-let pdfDoc = printer.createPdfKitDocument(docDefs);
-pdfDoc.pipe(ws);
+remarkable.use(plugin);
+
+let promise, parsed, writeStream, pdfDoc;
+
+parsed = remarkable.render(md.join('\n'));
+
+writeStream = fs.createWriteStream(file);
+
+pdfDoc = printer.createPdfKitDocument({
+	content: parsed,
+	defaultStyle: {
+		font: 'Helvetica'
+	}
+});
+
+pdfDoc.pipe(writeStream);
 pdfDoc.end();
 
 ```
