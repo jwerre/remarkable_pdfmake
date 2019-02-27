@@ -1,0 +1,34 @@
+{
+  "name": "remarkable_pdfmake",
+  "version": "0.0.0-1",
+  "description": "Convert markdown text to [PDFMake](https://github.com/bpampuch/pdfmake) arguments.",
+  "main": "index.js",
+  "repository": "git@github.com:jwerre/remarkable-pdfmake.git",
+  "author": "Jonah Werre <jonahwerre@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+	"test": "mocha test"
+  },
+  "keywords": [
+      "document",
+      "glossary",
+      "link",
+      "datauri",
+      "bold",
+      "strong",
+      "italic",
+      "italicized",
+      "image",
+      "markdown",
+      "md",
+      "plugin",
+      "remarkable",
+      "remarkableplugin",
+      "parcer",
+      "render"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "remarkable": "^1.7.1"
+  }
+}
