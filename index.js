@@ -81,7 +81,7 @@ function _parseInlineGroup (group) {
 			break;
 
 		case 'ins_open':
-			parsed.decoration = 'underline'
+			parsed.decoration = 'underline';
 			break;
 
 		case 'link_open':
