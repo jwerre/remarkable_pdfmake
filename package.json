@@ -1,6 +1,6 @@
 {
   "name": "remarkable_pdfmake",
-  "version": "0.0.0-2",
+  "version": "0.0.0",
   "description": "Convert markdown text to [PDFMake](https://github.com/bpampuch/pdfmake) arguments.",
   "main": "index.js",
   "repository": {
