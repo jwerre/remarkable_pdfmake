@@ -80,6 +80,10 @@ function _parseInlineGroup (group) {
 			parsed.italics = true;
 			break;
 
+		case 'ins_open':
+			parsed.decoration = 'underline'
+			break;
+
 		case 'link_open':
 			parsed.link = item.href;
 			break;
@@ -118,6 +122,7 @@ function Plugin(md) {
 	md.core.ruler.disable(disabled.core);
 	md.block.ruler.disable(disabled.block);
 	md.inline.ruler.disable(disabled.inline);
+	md.inline.ruler.enable(['ins']);
 	md.renderer.rules = renderRules; // this should be empty
 
 	// replace block rules

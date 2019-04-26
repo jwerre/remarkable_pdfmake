@@ -50,6 +50,23 @@ describe( 'Remarkable PDFMake Plugin', function () {
 		
 	});
 
+	it('should parse underline text', function () {
+
+		let parsed1 = remarkable.render('Some ++underline++ text');
+
+		assert.deepStrictEqual(parsed1, [
+			{
+				text: [
+					{ text: 'Some ' },
+					{ decoration: 'underline', text: 'underline' },
+					{ text: ' text' }
+				]
+			},
+			'\n'
+		]);
+
+	});
+
 	it('should parse a link', function () {
 		
 		let parsed = remarkable.render('Here\'s a [link to Google!](http://google.com)');
