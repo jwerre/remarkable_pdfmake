@@ -229,6 +229,25 @@ describe( 'Remarkable PDFMake Plugin', function () {
 	});
 	
 	describe.skip('TODO:', function () {
+
+		it('BUGFIX: should ignore square brackets', function () {
+			
+			// For some reason this reads as a link and errors
+			// because there isn't a url. Not sure why, but wrapped the error
+			// in a try catch at lib/parser_rules/inline/links.js:236
+			let text = 'Some [squarebracketed] text';
+			let parsed = remarkable.render(text);
+			assert.deepStrictEqual(parsed, [ 
+				{ 
+					text: [
+						{ text: text },
+					] 
+				},
+				'\n'
+			]);
+			
+		});
+
 		it('should parse an unordered list', function () {});
 		it('should parse an ordered list', function () {});
 		it('should parse a nested unordered list', function () {});

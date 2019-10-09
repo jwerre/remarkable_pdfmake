@@ -188,7 +188,7 @@ function Plugin(md) {
 
 	
 	md.renderer.render = function(tokens, options, env) {
-
+		
 		let result = [];
 	
 		tokens.forEach( (token, i) => {
@@ -196,8 +196,6 @@ function Plugin(md) {
 			if (token.type === 'inline') {
 				result = result.concat( this.renderInline(token.children, options, env) );
 			} else {
-				// console.log('\n———');
-				// console.log( require('util').inspect(token, {depth:5, colors:true}) );
 				if (typeof this.rules[token.type] === 'function') {
 					result.push( this.rules[token.type](tokens, i, options, env, this) );
 				}
