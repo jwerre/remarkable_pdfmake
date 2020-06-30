@@ -37,6 +37,6 @@
   "dependencies": {},
   "devDependencies": {
     "pdfmake": "^0.1.53",
-    "remarkable": "^1.7.1"
+    "remarkable": "^1.7.4"
   }
 }
