@@ -1,0 +1,52 @@
+name: Deploy Remarkable PDFMake plugin
+
+on: [push]
+
+env:
+    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        concurrency:
+            group: ${{ github.ref }}
+            cancel-in-progress: true
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 21
+
+            - name: Install packages
+              run: |
+                  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+                  npm ci --ignore-scripts
+              env:
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Security audit
+              run: npm audit --audit-level=moderate --omit=dev
+
+            - name: Format check
+              run: npm run format:check
+
+            - name: Lint check
+              run: npm run lint:check
+
+            - name: Spell check
+              run: npm run spell
+
+            - name: Test
+              run: npm test
+
+            - name: Build
+              run: npm run build
+
+            - name: Release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: npm run release

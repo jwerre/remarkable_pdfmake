@@ -1,0 +1,28 @@
+{
+	"version": "0.2",
+	"language": "en",
+	"words": [
+		"blockquotes",
+		"bolditalics",
+		"deflist",
+		"delims",
+		"hardbreak",
+		"htmlblock",
+		"htmltag",
+		"italibold",
+		"lheading",
+		"linebreak",
+		"linkify",
+		"Parens",
+		"pdfmake",
+		"smartquotes",
+		"softbreak"
+	],
+	"flagWords": [],
+	"ignorePaths": [
+		"dist/**",
+		"node_modules/**",
+		"package-lock.json",
+		"package.json"
+	]
+}

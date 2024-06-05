@@ -23,6 +23,13 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "rm -rf ./dist &&  rollup -c",
+		"format": "prettier \"**/*.mjs\" --check",
+		"format:fix": "prettier \"**/*.mjs\" --write",
+		"lint": "eslint",
+		"check": "rm -rf node_modules && npm install && npm audit --audit-level=moderate --omit=dev && npm run spell && npm run format && npm run lint && npm run test && npm run build && npm run release:dry",
+		"release:dry": "semantic-release --dry-run",
+		"release": "semantic-release",
+		"spell": "cspell lint .",
 		"test": "mocha test/test.mjs"
 	},
 	"keywords": [
@@ -45,9 +52,16 @@
 	],
 	"devDependencies": {
 		"@rollup/plugin-terser": "^0.4.4",
+		"@semantic-release/commit-analyzer": "^13.0.0",
+		"@semantic-release/github": "^10.0.6",
+		"@semantic-release/npm": "^12.0.1",
+		"cspell": "^8.8.4",
+		"eslint": "^9.4.0",
 		"glob": "^10.4.1",
 		"pdfmake": "^0.2.10",
+		"prettier": "^3.3.1",
 		"remarkable": "^2.0.1",
-		"rollup": "^4.18.0"
+		"rollup": "^4.18.0",
+		"semantic-release": "^22.0.12"
 	}
 }

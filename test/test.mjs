@@ -1,16 +1,17 @@
 import assert from 'assert';
 import fs from 'fs';
-import {spawnSync} from 'child_process';
+import { spawnSync } from 'child_process'; // to open pdf
 import PdfPrinter from 'pdfmake';
-import {Remarkable} from 'remarkable';
+import { Remarkable } from 'remarkable';
 import plugin from '../index.mjs';
 // const { linkify } = require('remarkable/linkify');
 
+const DATA_URI =
+	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHoAAAB6CAYAAABwWUfkAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAABuElEQVR4Ae3TQRHAMAzEQDf8Obd9BIW1mTEASblnZt7/vOUGznI+eNeA0JGvILTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC1a6IiBCKZFCx0xEMG0aKEjBiKYFi10xEAE06KFjhiIYFq00BEDEUyLFjpiIIJp0UJHDEQwLVroiIEIpkULHTEQwbRooSMGIpgWLXTEQATTooWOGIhgWrTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC1a6IiBCKZFCx0xEMG0aKEjBiKYFi10xEAE06KFjhiIYFq00BEDEUyLFjpiIIJp0UJHDEQwLVroiIEIpkULHTEQwbRooSMGIpgWLXTEQATTooWOGIhgWrTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC06EvoDKPAB83+i7DEAAAAASUVORK5CYII=';
 
-const DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHoAAAB6CAYAAABwWUfkAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAABuElEQVR4Ae3TQRHAMAzEQDf8Obd9BIW1mTEASblnZt7/vOUGznI+eNeA0JGvILTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC1a6IiBCKZFCx0xEMG0aKEjBiKYFi10xEAE06KFjhiIYFq00BEDEUyLFjpiIIJp0UJHDEQwLVroiIEIpkULHTEQwbRooSMGIpgWLXTEQATTooWOGIhgWrTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC1a6IiBCKZFCx0xEMG0aKEjBiKYFi10xEAE06KFjhiIYFq00BEDEUyLFjpiIIJp0UJHDEQwLVroiIEIpkULHTEQwbRooSMGIpgWLXTEQATTooWOGIhgWrTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC06EvoDKPAB83+i7DEAAAAASUVORK5CYII=';
+const OPEN_TEST_PDF = false; // change to true to open test pdf.
 
-describe( 'Remarkable PDFMake Plugin', function () {
-
+describe('Remarkable PDFMake plugin', function () {
 	const remarkable = new Remarkable();
 	remarkable.use(plugin);
 	// remarkable.use(linkify);
@@ -83,7 +84,7 @@ describe( 'Remarkable PDFMake Plugin', function () {
 		// For some reason this reads as a link and errors
 		// because there isn't a url. Not sure why, but wrapped the error
 		// in a try catch at lib/parser_rules/inline/links.js:236
-		let text = 'Some [squarebracketed] text';
+		let text = 'Some [square-bracketed] text';
 		let parsed = remarkable.render(text);
 		assert.deepStrictEqual(parsed, [
 			{
@@ -138,7 +139,7 @@ describe( 'Remarkable PDFMake Plugin', function () {
 	});
 
 	// This will open the PDF assuming you have Preview.app (OSX)
-	it.skip('should parse some complex markdown, create and open a pdf.', async function () {
+	it('should parse some complex markdown, create and open a pdf.', async function () {
 		this.timeout(10000);
 
 		const file = '/tmp/markdown.pdf';
@@ -148,7 +149,7 @@ describe( 'Remarkable PDFMake Plugin', function () {
 			'',
 			`You can embed relative images or data URIs: ![Alt text is ignored](${DATA_URI})`,
 			'',
-			'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.',
+			'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.', // cspell:disable-line
 		];
 
 		const parsed = remarkable.render(md.join('\n'));
@@ -183,14 +184,12 @@ describe( 'Remarkable PDFMake Plugin', function () {
 			{
 				text: [
 					{
-						text: 'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.',
+						text: 'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.', // cspell:disable-line
 					},
 				],
 			},
 			'\n',
 		]);
-
-		// This will open the pdf assuming you have Preview.app
 
 		const printer = new PdfPrinter({
 			Helvetica: {
@@ -214,8 +213,10 @@ describe( 'Remarkable PDFMake Plugin', function () {
 		});
 
 		writeStream.on('finish', function () {
-			// spawnSync('open', ['-a', '/Applications/Preview.app', file]);
-			spawnSync('open', [file]);
+			// This will open the pdf so the result can be inspected
+			if (OPEN_TEST_PDF) {
+				spawnSync('open', [file]);
+			}
 		});
 
 		pdfDoc.pipe(writeStream);

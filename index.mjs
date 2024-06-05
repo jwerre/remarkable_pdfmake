@@ -1,5 +1,5 @@
 import renderRules from './lib/render_rules.mjs';
-import links from './lib/parser_rules/inline/links.mjs'
+import links from './lib/parser_rules/inline/links.mjs';
 
 const disabled = {
 	core: [
@@ -26,7 +26,6 @@ const disabled = {
 		'table',
 		'deflist',
 		// 'paragraph',
-
 	],
 	inline: [
 		// 'text',
@@ -45,7 +44,7 @@ const disabled = {
 		'autolink',
 		'htmltag',
 		'entity',
-	]
+	],
 };
 
 const INLINE_GROUP_DELIMS = [
@@ -53,71 +52,64 @@ const INLINE_GROUP_DELIMS = [
 	'image',
 	'softbreak',
 	'hardbreak',
-	'_close'
+	'_close',
 ];
 
-
-function _parseInlineGroup (group) {
-	
+function _parseInlineGroup(group) {
 	var parsed = {};
-	
-	for (var i = 0; i < group.length; i++) {
 
+	for (var i = 0; i < group.length; i++) {
 		var item = group[i];
 
 		switch (item.type) {
+			case 'text':
+				parsed.text = item.content;
+				break;
 
-		case 'text':
-			parsed.text = item.content;
-			break;
-		
-		case 'strong_open':
-			parsed.bold = true;
-			break;
-		
-		case 'em_open':
-			parsed.italics = true;
-			break;
+			case 'strong_open':
+				parsed.bold = true;
+				break;
 
-		case 'ins_open':
-			parsed.decoration = 'underline';
-			break;
+			case 'em_open':
+				parsed.italics = true;
+				break;
 
-		case 'link_open':
-			parsed.link = item.href;
-			break;
+			case 'ins_open':
+				parsed.decoration = 'underline';
+				break;
 
-		case 'image':
-			parsed.image = item.src;
-			break;
-		
-		case 'softbreak':
-		case 'hardbreak':
-			parsed.text = '\n';
-			break;
+			case 'link_open':
+				parsed.link = item.href;
+				break;
+
+			case 'image':
+				parsed.image = item.src;
+				break;
+
+			case 'softbreak':
+			case 'hardbreak':
+				parsed.text = '\n';
+				break;
 			// default:
-				
 		}
-		
 	}
-	
+
 	return parsed;
 }
- 
+
 /**
-* Register as a plugin by passing it to `remarkable.use()`.
-*
-* ```js
-* const md = new Remarkable();
-* md.use(remarkable_pdfmake);
-* const result = md.render(Some **nice** [https://...](Markdown));
-* ```
-*
-* @param {Object} `options`
-* @return {String}
-*/
+ * Register as a plugin by passing it to `remarkable.use()`.
+ *
+ * ```js
+ * const md = new Remarkable();
+ * md.use(remarkable_pdfmake);
+ * const result = md.render(Some **nice** [https://...](Markdown));
+ * ```
+ *
+ * @param {Object} `options`
+ * @return {String}
+ */
 function Plugin(md) {
-	
 	md.core.ruler.disable(disabled.core);
 	md.block.ruler.disable(disabled.block);
 	md.inline.ruler.disable(disabled.inline);
@@ -128,39 +120,35 @@ function Plugin(md) {
 	// TODO:
 	// md.block.ruler.at( 'list', require('./lib/parser_rules/block/list') );
 	// md.block.ruler.at( 'table', require('./lib/parser_rules/block/table') );
-	
+
 	// replace inline rules
 	// need to modify image parser since data uris are not supported.
-	md.inline.ruler.at( 'links', links );
+	md.inline.ruler.at('links', links);
 
-	
-	md.renderer.renderInline = function(tokens, options, env) {
-	
+	md.renderer.renderInline = function (tokens, options, env) {
 		let groups = [],
 			group = [],
 			stacks = [],
-			delimiterRegExp = new RegExp( INLINE_GROUP_DELIMS.join('|') + '$');
-	
+			delimiterRegExp = new RegExp(INLINE_GROUP_DELIMS.join('|') + '$');
+
 		for (var i = 0; i < tokens.length; i++) {
-			
 			let token = tokens[i];
 			group.push(token);
-			
+
 			if (delimiterRegExp.test(token.type) && token.level === 0) {
 				groups.push([...group]);
 				group = [];
 			}
 		}
-		
+
 		// this doesn't work since you can't put images inside text blocks
 		// var stacks = {
 		// 	text: Array.prototype.map.call(groups, _parseInlineGroup)
 		// };
-		
+
 		let textStack = { text: [] };
-		
+
 		for (var i = 0; i < groups.length; i++) {
-			
 			let item = _parseInlineGroup(groups[i]);
 
 			if (!item.text) {
@@ -174,40 +162,35 @@ function Plugin(md) {
 			} else {
 				textStack.text.push(item);
 			}
-
 		}
-		
+
 		// if there are still items left in the stack push it
 		if (textStack.text.length) {
 			stacks.push(textStack);
 		}
-		
+
 		return stacks;
 	};
 
-	
-	md.renderer.render = function(tokens, options, env) {
-		
+	md.renderer.render = function (tokens, options, env) {
 		let result = [];
-	
-		tokens.forEach( (token, i) => {
-			
+
+		tokens.forEach((token, i) => {
 			if (token.type === 'inline') {
-				result = result.concat( this.renderInline(token.children, options, env) );
+				result = result.concat(
+					this.renderInline(token.children, options, env)
+				);
 			} else {
 				if (typeof this.rules[token.type] === 'function') {
-					result.push( this.rules[token.type](tokens, i, options, env, this) );
+					result.push(
+						this.rules[token.type](tokens, i, options, env, this)
+					);
 				}
 			}
-	
-	
 		});
-	
-		return result;
-	
-	};
-	
 
+		return result;
+	};
 }
 
 export default Plugin;
