@@ -1,6 +1,6 @@
 const assert = require('assert');
 const fs = require('fs');
-const {spawn} = require('child_process');
+const {spawnSync} = require('child_process');
 const PdfPrinter = require('pdfmake');
 const Remarkable = require('remarkable');
 const plugin = require('../');
@@ -136,95 +136,90 @@ describe( 'Remarkable PDFMake Plugin', function () {
 	});
 
 	// This will open the PDF assuming you have Preview.app (OSX)
-	it.skip('should parse some complex markdown, create and open a pdf.', async function () {
-		
-		let promise, parsed, writeStream, pdfDoc;
-		
-		const printer = new PdfPrinter({
-				Helvetica: {
-					normal: 'Helvetica',
-					bold: 'Helvetica-Bold',
-					italics: 'Helvetica-Oblique',
-					bolditalics: 'Helvetica-BoldOblique'
-				}
-			}),
-			file = '/tmp/markdown.pdf',
-			md = [
+	it('should parse some complex markdown, create and open a pdf.', async function () {
+		this.timeout(10000);
+			
+		const file = '/tmp/markdown.pdf';
+		const md = [
 				'Here we have some Markdown that is **bold** and some *italic* or even _**italibold**_.',
 				'Here\'s a [link to Google!](http://google.com)',
 				'',
 				`You can embed relative images or data URIs: ![Alt text is ignored](${DATA_URI})`,
 				'',
 				'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.',
-			],
-			result = [
-				{ 
-					text: [
-						{ text: 'Here we have some Markdown that is ' },
-						{ bold: true, text: 'bold' },
-						{ text: ' and some ' },
-						{ italics: true, text: 'italic' },
-						{ text: ' or even ' },
-						{ italics: true, bold: true, text: 'italibold' },
-						{ text: '.' },
-						{ text: '\n' },
-						{ text: 'Here\'s a ' },
-						{ link: 'http://google.com', text: 'link to Google!' }
-					]
-				},
-				'\n',
-				{
-					text: [
-						{
-							text: 'You can embed relative images or data URIs: '
-						}
-					]
-				},
-				{
-					image: DATA_URI
-				},
-				'\n',
-				{
-					text: [
-						{
-							text: 'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.'
-						}
-					] 
-				},
-				'\n'
 			];
-		parsed = remarkable.render(md.join('\n'));
-		assert.deepStrictEqual(parsed, result);
+		
+		const parsed = remarkable.render(md.join('\n'));
+		// console.log(parsed);
+		assert.deepStrictEqual(parsed, [
+			{
+				text: [
+					{ text: 'Here we have some Markdown that is ' },
+					{ bold: true, text: 'bold' },
+					{ text: ' and some ' },
+					{ italics: true, text: 'italic' },
+					{ text: ' or even ' },
+					{ italics: true, bold: true, text: 'italibold' },
+					{ text: '.' },
+					{ text: '\n' },
+					{ text: "Here's a " },
+					{ link: 'http://google.com', text: 'link to Google!' },
+				],
+			},
+			'\n',
+			{
+				text: [
+					{
+						text: 'You can embed relative images or data URIs: ',
+					},
+				],
+			},
+			{
+				image: DATA_URI,
+			},
+			'\n',
+			{
+				text: [
+					{
+						text: 'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.',
+					},
+				],
+			},
+			'\n',
+		]);
 		
 		// This will open the pdf assuming you have Preview.app
-		writeStream = fs.createWriteStream(file);
-		pdfDoc = printer.createPdfKitDocument({
+		
+		const printer = new PdfPrinter({
+			Times: {
+				normal: 'Times-Roman',
+				bold: 'Times-Bold',
+				italics: 'Times-Italic',
+				bolditalics: 'Times-BoldItalic',
+			},
+		});	
+		const pdfDoc = printer.createPdfKitDocument({
 			content: parsed,
 			defaultStyle: {
-				font: 'Helvetica'
+				font: 'Times'
 			}
 		});
 		
+		const writeStream = fs.createWriteStream(file);
+
 		
-		promise = new Promise(function(resolve, reject){
-		
-			writeStream.on('error', reject);
-		
-			writeStream.on('finish', function () {
-		
-				const open = spawn('open', ['-a', '/Applications/Preview.app', file]);
-		
-				open.stderr.on('data', reject);
-				open.on('exit', resolve);
-		
-			});
-		
+		writeStream.on('error', function (err) {throw err});
+	
+		writeStream.on('finish', function () {
+			// spawnSync('open', ['-a', '/Applications/Preview.app', file]);
+			spawnSync('open', [file]);
+	
 		});
-		
+	
 		pdfDoc.pipe(writeStream);
 		pdfDoc.end();
 		
-		return promise;
+		
 
 	});
 	

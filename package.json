@@ -34,9 +34,8 @@
     "parcer",
     "render"
   ],
-  "dependencies": {},
   "devDependencies": {
-    "pdfmake": "^0.1.53",
+    "pdfmake": "^0.2.10",
     "remarkable": "^1.7.4"
   }
 }
