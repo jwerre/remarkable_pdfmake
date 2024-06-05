@@ -1,41 +1,53 @@
 {
-  "name": "remarkable_pdfmake",
-  "version": "0.0.1",
-  "description": "Convert markdown text to [PDFMake](https://github.com/bpampuch/pdfmake) arguments.",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:jwerre/remarkable_pdfmake.git"
-  },
-  "bugs": {
-    "url": "https://github.com/jwerre/remarkable_pdfmake/issues"
-  },
-  "homepage": "https://github.com/jwerre/remarkable_pdfmake",
-  "author": "Jonah Werre <jonahwerre@gmail.com>",
-  "license": "MIT",
-  "scripts": {
-    "test": "mocha test"
-  },
-  "keywords": [
-    "document",
-    "glossary",
-    "link",
-    "datauri",
-    "bold",
-    "strong",
-    "italic",
-    "italicized",
-    "image",
-    "markdown",
-    "md",
-    "plugin",
-    "remarkable",
-    "remarkableplugin",
-    "parcer",
-    "render"
-  ],
-  "devDependencies": {
-    "pdfmake": "^0.2.10",
-    "remarkable": "^2.0.1"
-  }
+	"name": "remarkable_pdfmake",
+	"version": "0.0.1",
+	"description": "Convert markdown text to [PDFMake](https://github.com/bpampuch/pdfmake) arguments.",
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/esm/index.js",
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">= 16",
+		"npm": ">= 8"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:jwerre/remarkable_pdfmake.git"
+	},
+	"bugs": {
+		"url": "https://github.com/jwerre/remarkable_pdfmake/issues"
+	},
+	"homepage": "https://github.com/jwerre/remarkable_pdfmake",
+	"author": "Jonah Werre <jonahwerre@gmail.com>",
+	"license": "MIT",
+	"scripts": {
+		"build": "rm -rf ./dist &&  rollup -c",
+		"test": "mocha test/test.mjs"
+	},
+	"keywords": [
+		"document",
+		"glossary",
+		"link",
+		"datauri",
+		"bold",
+		"strong",
+		"italic",
+		"italicized",
+		"image",
+		"markdown",
+		"md",
+		"plugin",
+		"remarkable",
+		"remarkableplugin",
+		"parcer",
+		"render"
+	],
+	"devDependencies": {
+		"@rollup/plugin-terser": "^0.4.4",
+		"glob": "^10.4.1",
+		"pdfmake": "^0.2.10",
+		"remarkable": "^2.0.1",
+		"rollup": "^4.18.0"
+	}
 }
