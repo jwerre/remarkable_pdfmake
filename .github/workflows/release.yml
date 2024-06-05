@@ -31,10 +31,10 @@ jobs:
               run: npm audit --audit-level=moderate --omit=dev
 
             - name: Format check
-              run: npm run format:check
+              run: npm run format
 
             - name: Lint check
-              run: npm run lint:check
+              run: npm run lint
 
             - name: Spell check
               run: npm run spell
