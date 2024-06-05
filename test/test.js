@@ -4,37 +4,34 @@ const {spawnSync} = require('child_process');
 const PdfPrinter = require('pdfmake');
 const {Remarkable} = require('remarkable');
 const plugin = require('../');
-const { linkify } = require('remarkable/linkify');
+// const { linkify } = require('remarkable/linkify');
 
-const remarkable = new Remarkable();
-remarkable.use(plugin);
-// remarkable.use(linkify);
 
 const DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHoAAAB6CAYAAABwWUfkAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAABuElEQVR4Ae3TQRHAMAzEQDf8Obd9BIW1mTEASblnZt7/vOUGznI+eNeA0JGvILTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC1a6IiBCKZFCx0xEMG0aKEjBiKYFi10xEAE06KFjhiIYFq00BEDEUyLFjpiIIJp0UJHDEQwLVroiIEIpkULHTEQwbRooSMGIpgWLXTEQATTooWOGIhgWrTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC1a6IiBCKZFCx0xEMG0aKEjBiKYFi10xEAE06KFjhiIYFq00BEDEUyLFjpiIIJp0UJHDEQwLVroiIEIpkULHTEQwbRooSMGIpgWLXTEQATTooWOGIhgWrTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC06EvoDKPAB83+i7DEAAAAASUVORK5CYII=';
 
-
 describe( 'Remarkable PDFMake Plugin', function () {
 
+	const remarkable = new Remarkable();
+	remarkable.use(plugin);
+	// remarkable.use(linkify);
+
 	it('should parse italicized text', function () {
-		
 		let parsed1 = remarkable.render('Some *italicized* text');
 		let parsed2 = remarkable.render('Some _italicized_ text');
 		assert.deepStrictEqual(parsed1, parsed2);
-		assert.deepStrictEqual(parsed1, [ 
-			{ 
+		assert.deepStrictEqual(parsed1, [
+			{
 				text: [
 					{ text: 'Some ' },
 					{ italics: true, text: 'italicized' },
-					{ text: ' text' } 
-				] 
+					{ text: ' text' },
+				],
 			},
-			'\n'
+			'\n',
 		]);
-		
 	});
-	
+
 	it('should parse bold text', function () {
-		
 		let parsed1 = remarkable.render('Some **bold** text');
 		let parsed2 = remarkable.render('Some __bold__ text');
 
@@ -44,16 +41,14 @@ describe( 'Remarkable PDFMake Plugin', function () {
 				text: [
 					{ text: 'Some ' },
 					{ bold: true, text: 'bold' },
-					{ text: ' text' }
-				]
+					{ text: ' text' },
+				],
 			},
-			'\n'
+			'\n',
 		]);
-		
 	});
 
 	it('should parse underline text', function () {
-
 		let parsed1 = remarkable.render('Some ++underline++ text');
 
 		assert.deepStrictEqual(parsed1, [
@@ -61,96 +56,101 @@ describe( 'Remarkable PDFMake Plugin', function () {
 				text: [
 					{ text: 'Some ' },
 					{ decoration: 'underline', text: 'underline' },
-					{ text: ' text' }
-				]
+					{ text: ' text' },
+				],
 			},
-			'\n'
+			'\n',
 		]);
-
 	});
 
 	it('should parse a link', function () {
-		
-		let parsed = remarkable.render('Here\'s a [link to Google!](http://google.com)');
-		
+		let parsed = remarkable.render(
+			"Here's a [link to Google!](http://google.com)"
+		);
+
 		assert.deepStrictEqual(parsed, [
 			{
 				text: [
-					{ text: 'Here\'s a ' },
-					{ link: 'http://google.com', text: 'link to Google!' } 
-				]
+					{ text: "Here's a " },
+					{ link: 'http://google.com', text: 'link to Google!' },
+				],
 			},
-			'\n'
+			'\n',
 		]);
-		
+	});
+
+	it('should ignore square brackets (bugfix)', function () {
+		// For some reason this reads as a link and errors
+		// because there isn't a url. Not sure why, but wrapped the error
+		// in a try catch at lib/parser_rules/inline/links.js:236
+		let text = 'Some [squarebracketed] text';
+		let parsed = remarkable.render(text);
+		assert.deepStrictEqual(parsed, [
+			{
+				text: [{ text: text }],
+			},
+			'\n',
+		]);
 	});
 
 	it('should parse an image', function () {
-		
-		let parsed = remarkable.render('Here\'s an image: ![Alt text](http://https://octodex.github.com/images/original.png)');
+		let parsed = remarkable.render(
+			"Here's an image: ![Alt text](http://https://octodex.github.com/images/original.png)"
+		);
 		assert.deepStrictEqual(parsed, [
 			{
-				text: [
-					{ text: 'Here\'s an image: ' },
-				]
+				text: [{ text: "Here's an image: " }],
 			},
 			{ image: 'http://https://octodex.github.com/images/original.png' },
-			'\n' 
+			'\n',
 		]);
-		
 	});
 
 	it('should parse relative image', function () {
-		
-		let parsed = remarkable.render('Here\'s an image: ![Alt text](/images/original.png) as well.');
+		let parsed = remarkable.render(
+			"Here's an image: ![Alt text](/images/original.png) as well."
+		);
 
 		assert.deepStrictEqual(parsed, [
 			{
-				text: [
-					{ text: 'Here\'s an image: ' },
-				]
+				text: [{ text: "Here's an image: " }],
 			},
 			{ image: '/images/original.png' },
 			{
-				text: [
-					{ text: ' as well.' },
-				]
+				text: [{ text: ' as well.' }],
 			},
-			'\n'
+			'\n',
 		]);
-		
 	});
 
 	it('should parse a base64 encoded data uri as an image', function () {
-				
-		let parsed = remarkable.render(`Here's a data uri ![Encoded Img](${DATA_URI})`);
-		
+		let parsed = remarkable.render(
+			`Here's a data uri ![Encoded Img](${DATA_URI})`
+		);
+
 		assert.deepStrictEqual(parsed, [
 			{
-				text: [
-					{ text: 'Here\'s a data uri ' }
-				]
+				text: [{ text: "Here's a data uri " }],
 			},
 			{ image: DATA_URI },
-			'\n'
+			'\n',
 		]);
-		
 	});
 
 	// This will open the PDF assuming you have Preview.app (OSX)
-	it('should parse some complex markdown, create and open a pdf.', async function () {
+	it.skip('should parse some complex markdown, create and open a pdf.', async function () {
 		this.timeout(10000);
-			
+
 		const file = '/tmp/markdown.pdf';
 		const md = [
-				'Here we have some Markdown that is **bold** and some *italic* or even _**italibold**_.',
-				'Here\'s a [link to Google!](http://google.com)',
-				'',
-				`You can embed relative images or data URIs: ![Alt text is ignored](${DATA_URI})`,
-				'',
-				'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.',
-			];
-		
+			'Here we have some Markdown that is **bold** and some *italic* or even _**italibold**_.',
+			"Here's a [link to Google!](http://google.com)",
+			'',
+			`You can embed relative images or data URIs: ![Alt text is ignored](${DATA_URI})`,
+			'',
+			'Aliquam tempor lobortis ante, elementum interdum metus ornare at. Etiam id egestas libero, vel malesuada nunc. Quisque pharetra mattis velit quis dapibus. Nullam vel velit pulvinar, mattis est non, porttitor nunc. Fusce lacus enim.',
+		];
+
 		const parsed = remarkable.render(md.join('\n'));
 		// console.log(parsed);
 		assert.deepStrictEqual(parsed, [
@@ -189,9 +189,9 @@ describe( 'Remarkable PDFMake Plugin', function () {
 			},
 			'\n',
 		]);
-		
+
 		// This will open the pdf assuming you have Preview.app
-		
+
 		const printer = new PdfPrinter({
 			Helvetica: {
 				normal: 'Helvetica',
@@ -199,58 +199,34 @@ describe( 'Remarkable PDFMake Plugin', function () {
 				italics: 'Helvetica-Oblique',
 				bolditalics: 'Helvetica-BoldOblique',
 			},
-		});	
+		});
 		const pdfDoc = printer.createPdfKitDocument({
 			content: parsed,
 			defaultStyle: {
-				font: 'Helvetica'
-			}
+				font: 'Helvetica',
+			},
 		});
-		
+
 		const writeStream = fs.createWriteStream(file);
 
-		
-		writeStream.on('error', function (err) {throw err});
-	
+		writeStream.on('error', function (err) {
+			throw err;
+		});
+
 		writeStream.on('finish', function () {
 			// spawnSync('open', ['-a', '/Applications/Preview.app', file]);
 			spawnSync('open', [file]);
-	
 		});
-	
+
 		pdfDoc.pipe(writeStream);
 		pdfDoc.end();
-		
-		
-
 	});
-	
+
 	describe.skip('TODO:', function () {
-
-		it('BUGFIX: should ignore square brackets', function () {
-			
-			// For some reason this reads as a link and errors
-			// because there isn't a url. Not sure why, but wrapped the error
-			// in a try catch at lib/parser_rules/inline/links.js:236
-			let text = 'Some [squarebracketed] text';
-			let parsed = remarkable.render(text);
-			assert.deepStrictEqual(parsed, [ 
-				{ 
-					text: [
-						{ text: text },
-					] 
-				},
-				'\n'
-			]);
-			
-		});
-
 		it('should parse an unordered list', function () {});
 		it('should parse an ordered list', function () {});
 		it('should parse a nested unordered list', function () {});
 		it('should parse a nested ordered list', function () {});
 		it('should parse a table', function () {});
 	});
-
-
 });
