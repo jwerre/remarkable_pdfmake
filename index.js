@@ -12,7 +12,7 @@ const disabled = {
 		'abbr2',
 		'replacements',
 		'smartquotes',
-		'linkify',
+		// 'linkify',
 	],
 	block: [
 		'code',

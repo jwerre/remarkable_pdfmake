@@ -2,11 +2,13 @@ const assert = require('assert');
 const fs = require('fs');
 const {spawnSync} = require('child_process');
 const PdfPrinter = require('pdfmake');
-const Remarkable = require('remarkable');
+const {Remarkable} = require('remarkable');
 const plugin = require('../');
+const { linkify } = require('remarkable/linkify');
 
 const remarkable = new Remarkable();
 remarkable.use(plugin);
+// remarkable.use(linkify);
 
 const DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHoAAAB6CAYAAABwWUfkAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAABuElEQVR4Ae3TQRHAMAzEQDf8Obd9BIW1mTEASblnZt7/vOUGznI+eNeA0JGvILTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC1a6IiBCKZFCx0xEMG0aKEjBiKYFi10xEAE06KFjhiIYFq00BEDEUyLFjpiIIJp0UJHDEQwLVroiIEIpkULHTEQwbRooSMGIpgWLXTEQATTooWOGIhgWrTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC1a6IiBCKZFCx0xEMG0aKEjBiKYFi10xEAE06KFjhiIYFq00BEDEUyLFjpiIIJp0UJHDEQwLVroiIEIpkULHTEQwbRooSMGIpgWLXTEQATTooWOGIhgWrTQEQMRTIsWOmIggmnRQkcMRDAtWuiIgQimRQsdMRDBtGihIwYimBYtdMRABNOihY4YiGBatNARAxFMixY6YiCCadFCRwxEMC06EvoDKPAB83+i7DEAAAAASUVORK5CYII=';
 
@@ -191,17 +193,17 @@ describe( 'Remarkable PDFMake Plugin', function () {
 		// This will open the pdf assuming you have Preview.app
 		
 		const printer = new PdfPrinter({
-			Times: {
-				normal: 'Times-Roman',
-				bold: 'Times-Bold',
-				italics: 'Times-Italic',
-				bolditalics: 'Times-BoldItalic',
+			Helvetica: {
+				normal: 'Helvetica',
+				bold: 'Helvetica-Bold',
+				italics: 'Helvetica-Oblique',
+				bolditalics: 'Helvetica-BoldOblique',
 			},
 		});	
 		const pdfDoc = printer.createPdfKitDocument({
 			content: parsed,
 			defaultStyle: {
-				font: 'Times'
+				font: 'Helvetica'
 			}
 		});
 		
