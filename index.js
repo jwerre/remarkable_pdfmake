@@ -1,5 +1,5 @@
-import renderRules from './lib/render_rules.mjs';
-import links from './lib/parser_rules/inline/links.mjs';
+import renderRules from './lib/render_rules.js';
+import links from './lib/parser_rules/inline/links.js';
 
 const disabled = {
 	core: [
@@ -131,7 +131,7 @@ function Plugin(md) {
 			stacks = [],
 			delimiterRegExp = new RegExp(INLINE_GROUP_DELIMS.join('|') + '$');
 
-		for (var i = 0; i < tokens.length; i++) {
+		for (let i = 0; i < tokens.length; i++) {
 			let token = tokens[i];
 			group.push(token);
 
@@ -148,8 +148,8 @@ function Plugin(md) {
 
 		let textStack = { text: [] };
 
-		for (var i = 0; i < groups.length; i++) {
-			let item = _parseInlineGroup(groups[i]);
+		for (let j = 0; j < groups.length; j++) {
+			let item = _parseInlineGroup(groups[j]);
 
 			if (!item.text) {
 				// if there is not text push the current stack and reset it

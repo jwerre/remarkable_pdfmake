@@ -2,14 +2,18 @@
 	"name": "remarkable_pdfmake",
 	"version": "0.0.1",
 	"description": "Convert markdown text to [PDFMake](https://github.com/bpampuch/pdfmake) arguments.",
-	"main": "./dist/cjs/index.js",
-	"module": "./dist/esm/index.js",
+	"type": "module",
+	"main": "./index.js",
+	"exports": {
+		".": "./index.js"
+	},
 	"files": [
-		"dist"
+		"index.js",
+		"lib",
+		"README.md"
 	],
 	"engines": {
-		"node": ">= 16",
-		"npm": ">= 8"
+		"node": ">= 20"
 	},
 	"repository": {
 		"type": "git",
@@ -22,15 +26,15 @@
 	"author": "Jonah Werre <jonahwerre@gmail.com>",
 	"license": "MIT",
 	"scripts": {
-		"build": "rm -rf ./dist &&  rollup -c",
-		"format": "prettier \"**/*.mjs\" --check",
-		"format:fix": "prettier \"**/*.mjs\" --write",
+		"check": "rm -rf node_modules && npm install && npm audit --audit-level=moderate --omit=dev && npm run spell && npm run format && npm run lint && npm run test:ci && npm run release:dry",
+		"format": "prettier \"**/*.js\" --check",
+		"format:fix": "prettier \"**/*.js\" --write",
 		"lint": "eslint",
-		"check": "rm -rf node_modules && npm install && npm audit --audit-level=moderate --omit=dev && npm run spell && npm run format && npm run lint && npm run test && npm run build && npm run release:dry",
-		"release:dry": "semantic-release --dry-run",
 		"release": "semantic-release",
+		"release:dry": "semantic-release --dry-run",
 		"spell": "cspell lint .",
-		"test": "mocha test/test.mjs"
+		"test": "vitest",
+		"test:ci": "npm test -- --run"
 	},
 	"keywords": [
 		"document",
@@ -51,18 +55,18 @@
 		"render"
 	],
 	"devDependencies": {
-		"@rollup/plugin-terser": "^0.4.4",
-		"@semantic-release/commit-analyzer": "^13.0.0",
-		"@semantic-release/github": "^10.0.6",
-		"@semantic-release/npm": "^12.0.1",
-		"cspell": "^8.8.4",
-		"eslint": "^9.4.0",
-		"glob": "^10.4.1",
-		"mocha": "^10.4.0",
-		"pdfmake": "^0.2.10",
-		"prettier": "^3.3.1",
+		"@eslint/js": "^10.0.1",
+		"@semantic-release/commit-analyzer": "^13.0.1",
+		"@semantic-release/github": "^12.0.6",
+		"@semantic-release/npm": "^13.1.5",
+		"cspell": "^9.7.0",
+		"eslint": "^10.0.3",
+		"globals": "^17.4.0",
+		"mocha": "^11.7.5",
+		"pdfmake": "^0.3.6",
+		"prettier": "^3.8.1",
 		"remarkable": "^2.0.1",
-		"rollup": "^4.18.0",
-		"semantic-release": "^22.0.12"
+		"semantic-release": "^25.0.3",
+		"vitest": "^4.0.18"
 	}
 }

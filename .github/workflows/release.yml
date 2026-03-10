@@ -40,7 +40,7 @@ jobs:
               run: npm run spell
 
             - name: Test
-              run: npm test
+              run: npm test -- --run
 
             - name: Build
               run: npm run build
