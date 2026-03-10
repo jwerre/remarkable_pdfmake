@@ -2,12 +2,13 @@ name: Deploy Remarkable PDFMake plugin
 
 on: [push]
 
-env:
-    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
 jobs:
     deploy:
         runs-on: ubuntu-latest
+
+        permissions:
+            id-token: write # Required for npm Trusted Publishers
+            contents: write # Required to create GitHub releases and push tags
 
         concurrency:
             group: ${{ github.ref }}
@@ -18,14 +19,11 @@ jobs:
 
             - uses: actions/setup-node@v4
               with:
-                  node-version: 21
+                  node-version: 24
+                  registry-url: 'https://registry.npmjs.org'
 
             - name: Install packages
-              run: |
-                  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-                  npm ci --ignore-scripts
-              env:
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: npm ci --ignore-scripts
 
             - name: Security audit
               run: npm audit --audit-level=moderate --omit=dev
@@ -40,13 +38,10 @@ jobs:
               run: npm run spell
 
             - name: Test
-              run: npm test -- --run
-
-            - name: Build
-              run: npm run build
+              run: npm run test:ci
 
             - name: Release
+              run: npm run release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: npm run release
+                  NPM_CONFIG_PROVENANCE: true

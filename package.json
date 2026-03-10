@@ -26,7 +26,7 @@
 	"author": "Jonah Werre <jonahwerre@gmail.com>",
 	"license": "MIT",
 	"scripts": {
-		"check": "rm -rf node_modules && npm install && npm audit --audit-level=moderate --omit=dev && npm run spell && npm run format && npm run lint && npm run test:ci && npm run release:dry",
+		"check": "npm audit --audit-level=moderate --omit=dev && npm run spell && npm run format && npm run lint && npm run test:ci && npm run release:dry",
 		"format": "prettier \"**/*.js\" --check",
 		"format:fix": "prettier \"**/*.js\" --write",
 		"lint": "eslint",
@@ -54,6 +54,9 @@
 		"parcer",
 		"render"
 	],
+	"peerDependencies": {
+		"remarkable": "^2.0.1"
+	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@semantic-release/commit-analyzer": "^13.0.1",
